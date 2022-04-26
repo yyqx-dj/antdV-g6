@@ -6,6 +6,7 @@ import './index.less';
 import Left from './Left';
 import { nanoid } from 'nanoid';
 import EditModal from './component/EditModal';
+import img from '../assets/img/Kafka.png';
 let graph = null;
 
 export default function index() {
@@ -668,13 +669,12 @@ export default function index() {
     graph.addItem('node', model);
   };
 
-  const onDragEnd = (e: any) => {
-    console.log(e.target);
-    console.log(e);
+  const onDragEnd = (e: any, value: any, img: any) => {
     const model = {
       id: nanoid(),
-      label: e.target.innerHTML,
+      label: value,
       address: 'cq',
+      img: img,
       x: e.pageX,
       y: e.pageY,
       // anchorPoints: [[0, 0.5], [0.33, 0], [0.66, 0], [1, 0.5], [0.33, 1], [0.66, 1]]
@@ -693,9 +693,12 @@ export default function index() {
                   key={item.id}
                   className={item.type}
                   draggable="true"
-                  onDragEnd={onDragEnd}
+                  onDragEnd={(e) => onDragEnd(e, item.value, img)}
                 >
-                  {item.value}
+                  <span>
+                    <img src={img} alt="图片" />
+                  </span>
+                  <span>{item.value}</span>
                 </div>
               );
             })}
