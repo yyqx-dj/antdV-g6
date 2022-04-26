@@ -193,97 +193,20 @@ export default function index() {
             centerX	number	中心点 x 坐标
             centerY	number	中心点 y 坐标
          */
-          const bbox = group.getBBox();
-          const anchorPoints = this.getAnchorPoints(cfg); //获取锚点
-
-          //循环创建锚点
-          anchorPoints.forEach((anchorPos, i) => {
-            //group.addShape(type, cfgs)  向分组中添加新的图形
-            /*
-           type	String  图元素类型，值可以为：'rect'、'circle'、'fan'、'ellipse'、'marker'、'image' 等，具体参考 Shape 的类型及属性 教程
-           cfg	Object	图元素的属性
-           其中，cfg 包括以下字段：
-           attrs	Object	图形样式，必须配置，例如：{x: 0, y: 10, fill: '#0f0'}
-           name	String	图形的标识，可以不唯一。在 G6 3.3 及以后版本中必须指定。另外，name 可以用于组内搜索到该元素：const shape = group.find(element => element.get('name') === 'shape-name')，find 函数用法见 find(fn)
-           capture	Boolean	该图形是否可以被鼠标事件捕捉到，即是否能够响应各鼠标事件。非必须指定
-           visible	Boolean	该图形是否可见。非必须指定，默认为 true
-           draggable	Boolean	该图形是否允许被拖拽。例如，自定义节点通过 addShape 添加图形，当该图形的 draggable 值为 true 时，鼠标在该自定义节点的这个图形上才能够响应 dragstart，drag，与 dragend 事件；在实例化图时的 modes 中配置的 'drag-node' 交互才可以在该图形上进行拖拽时生效
-           zIndex	Number	该图形的视觉层次 z-index。非必须指定。指定后，调用 group.sort() 可以对组内所有图形根据各自 zIndex 进行视觉层次的排序
-          */
-            group.addShape('circle', {
-              attrs: {
-                r: 5,
-                x: bbox.x + bbox.width * anchorPos[0],
-                y: bbox.y + bbox.height * anchorPos[1],
-                fill: '#fff',
-                stroke: '#5F95FF',
-              },
-              name: `anchor-point`, // the name, for searching by group.find(ele => ele.get('name') === 'anchor-point')
-              anchorPointIdx: i, // flag the idx of the anchor-point circle
-              links: 0, // cache the number of edges connected to this shape
-              visible: false, // invisible by default, shows up when links > 1 or the node is in showAnchors state
-              draggable: true, // allow to catch the drag events on this shape
-            });
+          // const bbox = group.getBBox();
+          // const anchorPoints = this.getAnchorPoints(cfg); //获取锚点
+          group.addShape('image', {
+            attrs: {
+              x: -100,
+              y: -10,
+              width: 20,
+              height: 20,
+              img: 'https://g.alicdn.com/cm-design/arms-trace/1.0.155/styles/armsTrace/images/TAIR.png',
+            },
+            // must be assigned in G6 3.3 and later versions. it can be any value you want
+            name: 'image-shape',
+            draggable: true,
           });
-        },
-
-        //获取锚点
-        getAnchorPoints(cfg) {
-          return (
-            cfg.anchorPoints || [
-              [0, 0.5],
-              [0.33, 0],
-              [0.66, 0],
-              [1, 0.5],
-              [0.33, 1],
-              [0.66, 1],
-            ]
-          );
-        },
-        /**
-         * 响应节点的状态变化。
-         * 在需要使用动画来响应状态变化时需要被复写，其他样式的响应参见下文提及的 [配置状态样式] 文档
-         * @param  {String} name 状态名称
-         * @param  {Object} value 状态值
-         * @param  {Node} node 节点
-         */
-        setState(name, value, item) {
-          if (name === 'showAnchors') {
-            /**
-           * item.getContainer()
-              获取元素的容器。
-              返回值
-              返回值类型：G.Group；
-              返回元素所在的 graphics group。
-              用法
-              // 获取元素的容器
-              const group = item.getContainer();
-              // 等价于
-              const group = item.get('group');
-           */
-            /**
-           * graph.findAll(type, fn)
-                  查询所有满足规则的元素。
-                  参数
-                  名称	类型	是否必选	描述
-                  type	string	true	元素类型，可选值为 'node'、'edge'
-                  fn	Function	true	查找的规则
-                  返回值
-                  返回值类型：Array；
-                  如果有符合规则的元素实例，则返回所有元素实例，否则返回 undefined。
-                  用法
-                  const nodes = graph.findAll('node', (node) => {
-                  return node.get('model').x;
-                  });
-           */
-            const anchorPoints = item
-              .getContainer()
-              .findAll((ele) => ele.get('name') === 'anchor-point');
-            anchorPoints.forEach((point) => {
-              if (value || point.get('links') > 0) point.show();
-              else point.hide();
-            });
-          }
         },
       },
       'rect',
@@ -398,30 +321,17 @@ export default function index() {
           //     },
           //     offset: 10,
           //   },
-          {
-            type: 'click-select',
-            trigger: 'ctrl',
-            // 是否允许该 behavior 发生。若返回 false，被操作的 item 不会被选中，也不会触发 'nodeselectchange' 时机事件
-            // shouldBegin: (e) => {
-            //   // 当点击的图形名为 'text-shape' 时，不允许该 behavior 发生
-            //   if (e.target.get('name') === 'text-shape') return false;
-            //   // 当点击的节点/边/ combo 的 id 为 'id1' 时，不允许该 behavior 发生
-            //   if (e.item.getModel().id === 'id1') return false;
-            //   return true;
-            // },
-            // // 是否允许对该 behavior 发生状态响应。若返回 false，被操作的对象的状态及相关状态样式不会被更新，但是仍然会触发 'nodeselectchange' 时机事件
-            // shouldUpdate: (e) => {
-            //   // 当点击的节点/边/ combo 的 id 为 'id2' 时，该 item 不会发生状态的改变
-            //   if (e.item.getModel().id === 'id2') return false;
-            //   return true;
-            // },
-          },
           // config the shouldBegin for drag-node to avoid node moving while dragging on the anchor-point circles
           {
             type: 'drag-node',
+            // enableDelegate: true,
             shouldBegin: (e) => {
-              if (e.target.get('name') === 'anchor-point') return false;
-              return true;
+              console.log(e.target.get('name'));
+              if (e.target && e.target.get('name') === 'image-shape') {
+                return true;
+              } else {
+                return false;
+              }
             },
           },
           // config the shouldBegin and shouldEnd to make sure the create-edge is began and ended at anchor-point circles
@@ -435,24 +345,18 @@ export default function index() {
 
             shouldBegin: (e) => {
               //是否允许当前被操作的条件下开始创建边；
-              if (e.target && e.target.get('name') !== 'anchor-point')
+              if (e.target && e.target.get('name') === 'image-shape') {
+                return true;
+              } else {
                 return false;
-              sourceAnchorIdx = e.target.get('anchorPointIdx');
-              e.target.set('links', e.target.get('links') + 1); // cache the number of edge connected to this anchor-point circle
-              return true;
+              }
             },
             shouldEnd: (e) => {
-              //是否允许当前被操作的条件下结束创建边；
-              // avoid ending at other shapes on the node
-              if (e.target && e.target.get('name') !== 'anchor-point')
-                return false;
-              if (e.target) {
-                targetAnchorIdx = e.target.get('anchorPointIdx');
-                e.target.set('links', e.target.get('links') + 1); // cache the number of edge connected to this anchor-point circle
+              if (e.target && e.target.get('name') === 'image-shape') {
                 return true;
+              } else {
+                return false;
               }
-              targetAnchorIdx = undefined;
-              return true;
             },
           },
         ],
