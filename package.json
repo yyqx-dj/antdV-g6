@@ -22,6 +22,7 @@
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
     "@antv/g6": "^4.5.5",
+    "@antv/g6-react-node": "^1.4.4",
     "@antv/x6": "^1.29.0",
     "@antv/x6-react-shape": "^1.5.2",
     "@antv/xflow": "^1.0.34",
