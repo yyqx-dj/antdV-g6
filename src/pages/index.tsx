@@ -17,7 +17,7 @@ G6.registerNode('rect-jsx', {
           height: 20,
           fill: ${cfg.color},
           radius: [6, 6, 0, 0],
-          cursor: 'move',
+          cursor: 'crosshair',
           stroke: ${cfg.color}
         }} draggable="true" name='anchor_point'>
           <text style={{
@@ -217,6 +217,17 @@ export default function index() {
               return true;
             },
           },
+          // 当按住 'alt' 键，并按下 'm' 键，将调用 graph.moveTo(10, 10)
+          {
+            type: 'shortcuts-call',
+            // 主健
+            trigger: 'control',
+            // 副键
+            combinedKey: 'm',
+            // 将图内容的左上角移动到 10,10
+            functionName: 'moveTo',
+            functionParams: [50, 50],
+          },
         ],
       },
       defaultEdge: {
@@ -227,11 +238,30 @@ export default function index() {
           endArrow: true, //给连线加箭头
         },
       },
+      // 在 G6 中，有三种方式配置不同状态的样式：
+      //   在实例化 Graph 时，通过 nodeStateStyles 和 edgeStateStyles 对象定义；
+      //   在节点/边数据中，在 stateStyles 对象中定义状态；
+      //   在自定义节点/边时，在 options 配置项的 stateStyles 对象中定义状态。
+      edgeStateStyles: {
+        hover: {
+          stroke: 'red',
+          lineWidth: 2,
+        },
+      },
     });
 
     graph.data(data);
     graph.render();
     graph.on('aftercreateedge', (e) => {});
+    graph.on('edge:mouseenter', (ev) => {
+      const edge = ev.item;
+      graph.setItemState(edge, 'hover', true);
+    });
+
+    graph.on('edge:mouseleave', (ev) => {
+      const edge = ev.item;
+      graph.setItemState(edge, 'hover', false);
+    });
   }, []);
 
   const onSave = () => {
